@@ -5,6 +5,7 @@ import { Plus, Minus } from 'lucide-react';
 const Counter = () => {
   const [count, setCount] = useState(0);
   const [gradientIndex, setGradientIndex] = useState(0);
+  const [animationDirection, setAnimationDirection] = useState<'up' | 'down'>('down');
 
   const gradients = [
     'from-pink-400 via-purple-500 to-indigo-600',
@@ -18,11 +19,13 @@ const Counter = () => {
   const handleIncrement = () => {
     setCount(prev => prev + 1);
     setGradientIndex(prev => (prev + 1) % gradients.length);
+    setAnimationDirection('down');
   };
 
   const handleDecrement = () => {
     setCount(prev => Math.max(0, prev - 1));
     setGradientIndex(prev => (prev + 1) % gradients.length);
+    setAnimationDirection('up');
   };
 
   return (
@@ -33,8 +36,13 @@ const Counter = () => {
             Fun Counter! 🎉
           </h1>
           
-          <div className="mb-10">
-            <div className="text-8xl font-bold text-white drop-shadow-2xl transform transition-all duration-300 hover:scale-110 animate-pulse">
+          <div className="mb-10 relative overflow-hidden h-32 flex items-center justify-center">
+            <div 
+              key={count}
+              className={`text-8xl font-bold text-white drop-shadow-2xl transform transition-all duration-300 hover:scale-110 ${
+                animationDirection === 'down' ? 'animate-slide-down' : 'animate-slide-up'
+              }`}
+            >
               {count}
             </div>
           </div>
