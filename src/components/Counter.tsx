@@ -4,6 +4,7 @@ import { Plus, Minus } from 'lucide-react';
 
 const Counter = () => {
   const [count, setCount] = useState(0);
+  const [prevCount, setPrevCount] = useState(0);
   const [gradientIndex, setGradientIndex] = useState(0);
   const [animationDirection, setAnimationDirection] = useState<'up' | 'down'>('down');
 
@@ -16,16 +17,50 @@ const Counter = () => {
     'from-indigo-400 via-blue-500 to-cyan-500',
   ];
 
+  const getDigits = (num: number): string[] => {
+    return num.toString().split('');
+  };
+
   const handleIncrement = () => {
+    setPrevCount(count);
     setCount(prev => prev + 1);
     setGradientIndex(prev => (prev + 1) % gradients.length);
     setAnimationDirection('down');
   };
 
   const handleDecrement = () => {
+    setPrevCount(count);
     setCount(prev => Math.max(0, prev - 1));
     setGradientIndex(prev => (prev + 1) % gradients.length);
     setAnimationDirection('up');
+  };
+
+  const renderAnimatedDigits = () => {
+    const currentDigits = getDigits(count);
+    const previousDigits = getDigits(prevCount);
+    
+    // Pad with leading spaces to align digits properly
+    const maxLength = Math.max(currentDigits.length, previousDigits.length);
+    const paddedCurrent = currentDigits;
+    const paddedPrevious = previousDigits;
+
+    return paddedCurrent.map((digit, index) => {
+      const prevDigit = paddedPrevious[index];
+      const hasChanged = digit !== prevDigit;
+      
+      return (
+        <span
+          key={`${index}-${hasChanged ? count : 'static'}`}
+          className={`inline-block ${
+            hasChanged 
+              ? animationDirection === 'down' ? 'animate-slide-down' : 'animate-slide-up'
+              : ''
+          }`}
+        >
+          {digit}
+        </span>
+      );
+    });
   };
 
   return (
@@ -37,13 +72,8 @@ const Counter = () => {
           </h1>
           
           <div className="mb-10 relative overflow-hidden h-32 flex items-center justify-center">
-            <div 
-              key={count}
-              className={`text-8xl font-bold text-white drop-shadow-2xl transform transition-all duration-300 hover:scale-110 ${
-                animationDirection === 'down' ? 'animate-slide-down' : 'animate-slide-up'
-              }`}
-            >
-              {count}
+            <div className="text-8xl font-bold text-white drop-shadow-2xl transform transition-all duration-300 hover:scale-110">
+              {renderAnimatedDigits()}
             </div>
           </div>
 
